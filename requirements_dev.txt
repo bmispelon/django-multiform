@@ -1,0 +1,6 @@
+# For running the tests
+pytest-django
+pytest-cov
+
+# For building the documentation
+Sphinx==1.2b1

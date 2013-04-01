@@ -1,0 +1,7 @@
+*.pyc
+__pycache__
+htmlcov
+.coverage
+env*
+django
+docs/_build
