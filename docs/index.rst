@@ -9,6 +9,8 @@ Welcome to django-multiform's documentation!
 Django-multiform is a library that allows you to wrap several forms
 into one object with a form-like API.
 
+It's compatible with django 1.4 and 1.5.
+
 A lot of care has been put into replicating the same API as Form so that a
 MultiForm can be used anywhere a regular Form would.
 
