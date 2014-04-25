@@ -17,8 +17,9 @@ from .forms import (
     SAMPLE_FORMS,
 
     ToppingMultiModelForm,
+    ToppingPizzaRestaurantMultiModelForm,
 )
-from .models import Pizza, Topping
+from .models import Pizza, Restaurant, Topping
 
 
 def make_multiform(base_forms=None, base=MultiForm, name="<test>"):
@@ -163,4 +164,22 @@ class TestMultiModelForm(test.TestCase):
         d['topping'].pizza = d['pizza']
         d['topping'].save()
         self.assertEqual(d['topping'], Topping.objects.get())
+        self.assertEqual(d['pizza'], Pizza.objects.get())
+
+    def test_save_m2m(self):
+        restaurant = Restaurant.objects.create(name='Alfredo')
+        data = {
+            'topping-name': 'tomato sauce',
+            'pizza-name': 'Plain',
+            'pizza-restaurant': [restaurant.id]
+        }
+        form = ToppingPizzaRestaurantMultiModelForm(data)
+        self.assertTrue(form.is_valid())
+        d = form.save(commit=False)
+        d['pizza'].save()
+        d['topping'].pizza = d['pizza']
+        d['topping'].save()
+        form.save_m2m()
+        self.assertEqual(d['topping'], Topping.objects.get())
+        self.assertEqual(d['pizza'].restaurant.get(), Restaurant.objects.get())
         self.assertEqual(d['pizza'], Pizza.objects.get())

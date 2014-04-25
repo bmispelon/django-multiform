@@ -135,7 +135,8 @@ class MultiForm(BaseForm):
         return OrderedDict(self.base_forms)
 
     def _combine(self, attr, filter=False,
-                 call=False, call_args=(), call_kwargs=None):
+                 call=False, call_args=(), call_kwargs=None,
+                 ignore_missing=False):
         """
         Combine an attribute (or method) of each wrapped form into an
         OrderedDict.
@@ -230,4 +231,13 @@ class MultiModelForm(MultiForm):
     def save(self, commit=True):
         # TODO: Find a good API to wrap this in a db transaction
         # TODO: allow committing some forms but not others
-        return self._combine('save', call=True, call_kwargs={'commit': commit})
+        instances = self._combine('save', call=True,
+                                  call_kwargs={'commit': commit})
+        if commit:
+            self.save_m2m()
+        return instances
+
+    def save_m2m(self):
+        # TODO: Find a good API to wrap this in a db transaction
+        return self._combine('save_m2m', filter=True, call=True,
+                             ignore_missing=True)

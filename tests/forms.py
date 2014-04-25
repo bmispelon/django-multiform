@@ -4,6 +4,7 @@ from multiform import MultiForm, MultiModelForm
 
 from .models import Pizza, Topping
 
+
 class EmptyForm(forms.Form):
     pass
 
@@ -44,6 +45,12 @@ class PizzaModelForm(forms.ModelForm):
     class Meta:
         model = Pizza
         fields = ('name',)
+
+
+class PizzaWithRestaurantModelForm(forms.ModelForm):
+    class Meta:
+        model = Pizza
+        fields = ('name', 'restaurant')
 
 
 class ToppingModelForm(forms.ModelForm):
@@ -98,4 +105,18 @@ class ToppingMultiModelForm(MultiModelForm):
     def dispatch_init_instance(self, name, instance):
         if name == 'topping':
             return instance
-        return super(ToppingMultiModelForm, self).dispatch_init_instance(name, instance)
+        return super(ToppingMultiModelForm, self) \
+            .dispatch_init_instance(name, instance)
+
+
+class ToppingPizzaRestaurantMultiModelForm(MultiModelForm):
+    base_forms = {
+        'pizza': PizzaWithRestaurantModelForm,
+        'topping': ToppingModelForm,
+    }
+
+    def dispatch_init_instance(self, name, instance):
+        if name == 'topping':
+            return instance
+        return super(ToppingPizzaRestaurantMultiModelForm, self) \
+            .dispatch_init_instance(name, instance)
