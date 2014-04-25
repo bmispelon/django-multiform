@@ -7,8 +7,6 @@ from multiform import MultiForm
 
 from .forms import (
     EmptyForm,
-    FooForm,
-    CapturingForm,
     SampleMultiForm,
     MultiFormWithHiddenFields,
     MultiFormWithFileInput,
@@ -27,14 +25,17 @@ def make_multiform(base_forms=None, base=MultiForm, name="<test>"):
 
 
 class TestMultiForm(test.TestCase):
+
     def test_improperly_configured(self):
-        """Try to initialize a multiform subclass with empty base_forms values."""
+        """
+        Try to initialize a multiform subclass with empty base_forms values.
+        """
         with self.assertRaises(ImproperlyConfigured):
-            form = make_multiform()()
+            make_multiform()()
         with self.assertRaises(ImproperlyConfigured):
-            form = make_multiform([])()
+            make_multiform([])()
         with self.assertRaises(ImproperlyConfigured):
-            form = make_multiform({})()
+            make_multiform({})()
 
     def test_init_too_many_positional_args(self):
         with self.assertRaises(TypeError):
@@ -42,17 +43,21 @@ class TestMultiForm(test.TestCase):
             SampleMultiForm(*args)
 
     def test_init_duplicate_param(self):
-        """Check that passing an argument both as positional and named fails."""
+        """
+        Check that passing an argument both as positional and named fails.
+        """
         with self.assertRaises(TypeError):
             # data is the first argument of the signature
             SampleMultiForm(None, data=None)
 
     def test_base_forms(self):
-        """Check that various types are accepted for the base_forms attribute."""
+        """
+        Check that various types are accepted for the base_forms attribute.
+        """
         expected = sorted(name for name, form_class in SAMPLE_FORMS)
-    
+
         for base_forms in [
-            SAMPLE_FORMS, # list of 2-tuple
+            SAMPLE_FORMS,  # list of 2-tuple
             dict(SAMPLE_FORMS),
             OrderedDict(SAMPLE_FORMS)
         ]:
@@ -76,7 +81,8 @@ class TestMultiForm(test.TestCase):
     def test_as_ul(self):
         form = SampleMultiForm()
         expected = ('<li><label for="id_foo-foo">Foo:</label> '
-                    '<input id="id_foo-foo" name="foo-foo" type="text" /></li>')
+                    '<input id="id_foo-foo" name="foo-foo" type="text" />'
+                    '</li>')
         self.assertHTMLEqual(form.as_ul().strip(), expected)
 
     def test_as_table(self):
@@ -140,6 +146,7 @@ class TestMultiForm(test.TestCase):
 
 
 class TestMultiModelForm(test.TestCase):
+
     def test_dispatch_instance_none(self):
         """When passing instance=None, an empty object is created."""
         form = ToppingMultiModelForm()
