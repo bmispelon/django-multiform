@@ -1,6 +1,6 @@
 from django import forms
 
-from multiform import MultiForm, MultiModelForm
+from multiform import MultiForm, MultiModelForm, InvalidArgument
 
 from .models import Pizza, Topping
 
@@ -76,6 +76,18 @@ class MultiFormWithHiddenFields(MultiForm):
         ('foo', FooForm),
         ('hidden', HiddenForm),
     ]
+
+
+class MultiFormWithInvalidArgument(MultiForm):
+    base_forms = [
+        ('foo', FooForm),
+        ('capture', CapturingForm),
+    ]
+
+    def dispatch_init_capture(self, name, captured):
+        if name == "capture":
+            return captured
+        return InvalidArgument
 
 
 class MultiFormWithFileInput(MultiForm):

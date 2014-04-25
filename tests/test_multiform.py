@@ -9,6 +9,7 @@ from .forms import (
     EmptyForm,
     SampleMultiForm,
     MultiFormWithHiddenFields,
+    MultiFormWithInvalidArgument,
     MultiFormWithFileInput,
     MultiFormWithNonFieldError,
     MultiFormWithInitial,
@@ -69,6 +70,14 @@ class TestMultiForm(test.TestCase):
         self.assertIs(None, form['capture'].captured)
         form = SampleMultiForm(capture__capture='hello')
         self.assertEquals('hello', form['capture'].captured)
+
+    def test_dispatch_kwargs_not_provided(self):
+        form = MultiFormWithInvalidArgument()
+        self.assertIs(None, form['capture'].captured)
+        self.assertFalse(hasattr(form['foo'], 'captured'))
+        form = MultiFormWithInvalidArgument(capture='hello')
+        self.assertEquals('hello', form['capture'].captured)
+        self.assertFalse(hasattr(form['foo'], 'captured'))
 
     def test_getitem(self):
         form = SampleMultiForm()

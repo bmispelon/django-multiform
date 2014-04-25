@@ -13,6 +13,10 @@ from django.forms.widgets import Media
 from django.utils.safestring import mark_safe
 
 
+class InvalidArgument:
+    pass
+
+
 class MultiForm(BaseForm):
     """
     A BaseForm subclass that can wrap several sub-forms into one entity.
@@ -101,17 +105,22 @@ class MultiForm(BaseForm):
             #    argument as-is.
             #    If such a method exists, then we use the result of calling
             #    this method, passing the form's name and the original value.
-            # 2) Any existing ``extra_kwargs`` are applied.
+            # 2) For any existing ``extra_kwargs`` we check for the presence
+            #    of a dispatch_init_$keyword method on the instance.
+            #    If no such method is present, we just pass the value of the
+            #    argument as-is.
+            #    If such a method exists, then we use the result of calling
+            #    this method, passing the form's name and the original value.
             # 3) If some dispatched_kwargs exist for this method (that is,
-            # keyword arguments passed to the MultiForm's __init__ whose name
-            # look like "$name__*"), then they are applied.
+            #    keyword arguments passed to the MultiForm's __init__ whose
+            #    name look like "$name__*"), then they are applied.
             kwargs = {}
-            for k, v in sig_kwargs.items():
+            for k, v in chain(sig_kwargs.items(), extra_kwargs.items()):
                 if hasattr(self, 'dispatch_init_%s' % k):
-                    kwargs[k] = getattr(self, 'dispatch_init_%s' % k)(name, v)
-                else:
-                    kwargs[k] = v
-            kwargs.update(extra_kwargs)
+                    v = getattr(self, 'dispatch_init_%s' % k)(name, v)
+                    if v is InvalidArgument:
+                        continue
+                kwargs[k] = v
             kwargs.update(dispatched_kwargs[name])
             self.forms[name] = form_class(**kwargs)
 
@@ -148,6 +157,10 @@ class MultiForm(BaseForm):
             call_kwargs = {}
         d = OrderedDict()
         for name, form in self.forms.items():
+            if ignore_missing and not hasattr(form, attr):
+                if not filter:
+                    d[name] = None
+                continue
             v = getattr(form, attr)
             if call:
                 v = v(*call_args, **call_kwargs)
