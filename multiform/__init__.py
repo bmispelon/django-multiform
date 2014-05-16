@@ -1,1 +1,1 @@
-from .forms import MultiForm, MultiModelForm
+from .forms import MultiForm, MultiModelForm, InvalidArgument  # noqa

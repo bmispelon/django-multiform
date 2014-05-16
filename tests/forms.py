@@ -1,8 +1,9 @@
 from django import forms
 
-from multiform import MultiForm, MultiModelForm
+from multiform import MultiForm, MultiModelForm, InvalidArgument
 
 from .models import Pizza, Topping
+
 
 class EmptyForm(forms.Form):
     pass
@@ -46,6 +47,12 @@ class PizzaModelForm(forms.ModelForm):
         fields = ('name',)
 
 
+class PizzaWithRestaurantModelForm(forms.ModelForm):
+    class Meta:
+        model = Pizza
+        fields = ('name', 'restaurant')
+
+
 class ToppingModelForm(forms.ModelForm):
     class Meta:
         model = Topping
@@ -69,6 +76,18 @@ class MultiFormWithHiddenFields(MultiForm):
         ('foo', FooForm),
         ('hidden', HiddenForm),
     ]
+
+
+class MultiFormWithInvalidArgument(MultiForm):
+    base_forms = [
+        ('foo', FooForm),
+        ('capture', CapturingForm),
+    ]
+
+    def dispatch_init_capture(self, name, captured):
+        if name == "capture":
+            return captured
+        return InvalidArgument
 
 
 class MultiFormWithFileInput(MultiForm):
@@ -98,4 +117,18 @@ class ToppingMultiModelForm(MultiModelForm):
     def dispatch_init_instance(self, name, instance):
         if name == 'topping':
             return instance
-        return super(ToppingMultiModelForm, self).dispatch_init_instance(name, instance)
+        return super(ToppingMultiModelForm, self) \
+            .dispatch_init_instance(name, instance)
+
+
+class ToppingPizzaRestaurantMultiModelForm(MultiModelForm):
+    base_forms = {
+        'pizza': PizzaWithRestaurantModelForm,
+        'topping': ToppingModelForm,
+    }
+
+    def dispatch_init_instance(self, name, instance):
+        if name == 'topping':
+            return instance
+        return super(ToppingPizzaRestaurantMultiModelForm, self) \
+            .dispatch_init_instance(name, instance)
