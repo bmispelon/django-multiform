@@ -20,10 +20,10 @@ create several different types of models at once.
         bar = forms.CharField()
 
     class FooBarForm(MultiForm):
-        base_forms = {
-            'foo': FooForm,
-            'bar': BarForm
-        }
+        base_forms = [
+            ('foo', FooForm),
+            ('bar', BarForm),
+        ]
 
     # views.py
     from django.views import generic
@@ -52,10 +52,10 @@ create several different types of models at once.
     from .models import Person
 
     class PersonUserForm(MultiModelForm):
-        base_forms = {
-            'person': PersonForm,
-            'user': UserCreationForm,
-        }
+        base_forms = [
+            ('person', PersonForm),
+            ('user', UserCreationForm),
+        ]
 
         def dispatch_init_instance(self, name, instance):
             if name == 'person':

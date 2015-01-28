@@ -37,10 +37,10 @@ to reuse several existing forms in a generic ``FormView``.
         bar = forms.CharField()
 
     class FooBarForm(MultiForm):
-        base_forms = {
-            'foo': FooForm,
-            'bar': BarForm
-        }
+        base_forms = [
+            ('foo', FooForm),
+            ('bar', BarForm),
+        ]
 
     # views.py
     from django.views import generic
@@ -83,10 +83,10 @@ CreateView for example.
     from multiform import MultiModelForm
 
     class PersonUserForm(MultiModelForm):
-        base_forms = {
-            'person': PersonForm,
-            'user': UserCreationForm,
-        }
+        base_forms = [
+            ('person', PersonForm),
+            ('user', UserCreationForm),
+        ]
 
         def dispatch_init_instance(self, name, instance):
             if name == 'person':
